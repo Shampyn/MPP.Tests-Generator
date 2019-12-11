@@ -127,8 +127,8 @@ namespace NUnitTestGeneratorLibrary
 
               SyntaxNode result = GenerateCompilationUnit(classDeclaration);
               result = GenerateClassNode(result, classDeclaration);
-              result = GenerateTestMethods(result, sourceRoot.DescendantNodes().OfType<MethodDeclarationSyntax>());
-              return result.NormalizeWhitespace();
+              result = GenerateTestMethods(result, sourceRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(method => method.Modifiers.Any(modifier => modifier.ToString() == "public")));
+               return result.NormalizeWhitespace();
               }
             catch(Exception e)
             {
