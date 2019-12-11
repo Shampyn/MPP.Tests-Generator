@@ -34,7 +34,10 @@ namespace NUnitTestGeneratorUnitTests
         {
             string sourceCode = "using System;" + "namespace Test" + "{" + "public class A{}" + "}";
             Assert.IsNotNull(nUnitTestGenerator.Generate(sourceCode));
+
         }
+
+
 
         [TestMethod]
         public void GenerateFromValidCodeWithoutMethodInsideShouldReturnCorrectTestCase()

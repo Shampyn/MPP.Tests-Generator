@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NUnitTestGeneratorLibrary
 {
@@ -49,17 +50,11 @@ namespace NUnitTestGeneratorLibrary
                 List<CSharpFile> results = new List<CSharpFile>();
                 foreach (var generatedTest in generatedTests)
                 {
+
+                    string testName = generatedTest.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList()[0].Identifier.Text;
+                    
                     string generatedTestStr = generatedTest.ToString();
-                    string testName = "";
-                    string[] words = generatedTestStr.Split(' ');
-                    for (int i = 0; i < words.Length; i++)
-                    {
-                        if (words[i] == "class")
-                        {
-                            i++;
-                            testName = words[i].Trim(' ', '\r', '\n', '\t');
-                        }
-                    }
+                    testName.Trim(' ', '\r', '\n', '\t');
                     results.Add(new CSharpFile(Path.GetFullPath(_testfolder) + "\\" + testName + "Test.cs", generatedTestStr));
                 }
                 return results;

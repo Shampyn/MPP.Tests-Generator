@@ -10,7 +10,7 @@ namespace TestGenerator
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter list of file to generate tests for them separating them by spaces");
+            Console.WriteLine("Enter files to generate tests");
             List<string> Files = Console.ReadLine().Split(' ').ToList();
             List<string> FilesPath = new List<string>();
             foreach (string File in Files)
