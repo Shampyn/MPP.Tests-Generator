@@ -41,32 +41,42 @@ namespace NUnitTestGeneratorLibrary
                 MaxDegreeOfParallelism = _maxFilesToRead
             });
 
-            var getTest = new TransformBlock<string, CSharpFile>(source =>
+            var getTest = new TransformBlock<string, List<CSharpFile>>(source =>
             {
                 NUnitTestGenerator nUnitTestGenerator = new NUnitTestGenerator();
-                string generatedTest = nUnitTestGenerator.Generate(source).ToString();
-                string testName = "";
-                string[] words = generatedTest.Split(' ');
-                for (int i = 0; i < words.Length; i++)
+
+                var generatedTests = nUnitTestGenerator.Generate(source);
+                List<CSharpFile> results = new List<CSharpFile>();
+                foreach (var generatedTest in generatedTests)
                 {
-                    if (words[i] == "class")
+                    string generatedTestStr = generatedTest.ToString();
+                    string testName = "";
+                    string[] words = generatedTestStr.Split(' ');
+                    for (int i = 0; i < words.Length; i++)
                     {
-                        i++;
-                        testName = words[i].Trim(' ', '\r', '\n', '\t');
+                        if (words[i] == "class")
+                        {
+                            i++;
+                            testName = words[i].Trim(' ', '\r', '\n', '\t');
+                        }
                     }
+                    results.Add(new CSharpFile(Path.GetFullPath(_testfolder) + "\\" + testName + "Test.cs", generatedTestStr));
                 }
-                return new CSharpFile(Path.GetFullPath(_testfolder) + "\\" + testName + "Test.cs", generatedTest);
+                return results;
             }, new ExecutionDataflowBlockOptions
             {
                 MaxDegreeOfParallelism = _maxThreads
             });
 
 
-            var writeResult = new ActionBlock<CSharpFile>(async csharpFile =>
+            var writeResult = new ActionBlock<List<CSharpFile>>(async csharpFiles =>
             {
-                using (StreamWriter writer = File.CreateText(csharpFile.Filename))
+                foreach (var csharpFile in csharpFiles)
                 {
-                    await writer.WriteAsync(csharpFile.Text);
+                    using (StreamWriter writer = File.CreateText(csharpFile.Filename))
+                    {
+                        await writer.WriteAsync(csharpFile.Text);
+                    }
                 }
             }, new ExecutionDataflowBlockOptions
             {
